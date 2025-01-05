@@ -15,7 +15,7 @@ jobs:
     steps:
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'Zubin\'s Sub'  # Replace with your Azure subscription name
+          azureSubscription: 'Zubin's Sub'  # Replace with your Azure subscription name
           scriptType: 'bash'  # Use bash for scripting
           scriptLocation: 'inlineScript'
           inlineScript: |
