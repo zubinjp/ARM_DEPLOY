@@ -6,18 +6,24 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'  # Using the latest Ubuntu VM image to run the pipeline
 
+variables:
+  vmAdminUsername: 'zubin'  # Define the admin username as a variable
+  vmAdminPassword: $(VMAdminPassword)  # Reference the secret variable for the password
+
 jobs:
 - job: DeployARMTemplate
   displayName: 'Deploy ARM Template to Azure'
   steps:
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'Zubin's Sub'  # Replace with your Azure subscription name
+      azureSubscription: 'Zubin''s Sub'  # Replace with your Azure subscription name
       scriptType: 'bash'  # Use bash for scripting
       scriptLocation: 'inlineScript'
       inlineScript: |
         echo "Deploying ARM Template..."
         az deployment group create \
           --resource-group vm-dep-grp \
-          --template-file arm-temp.json  # Replace with the correct ARM template filename
+          --template-file arm-temp.json \  # Replace with the correct ARM template filename
+          --parameters adminUsername=$(vmAdminUsername) \
+          --parameters adminPassword=$(vmAdminPassword)  # Use the variables for username and password
     displayName: 'Deploy ARM Template'

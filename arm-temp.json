@@ -1,6 +1,21 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "zubin",  // Default username value, can be overridden
+      "metadata": {
+        "description": "The admin username for the VM"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The admin password for the VM"
+      }
+    }
+  },
   "resources": [
     {
       "type": "Microsoft.Network/publicIPAddresses",
@@ -95,8 +110,8 @@
         "virtualMachineProfile": {
           "osProfile": {
             "computerNamePrefix": "myVMSS",
-            "adminUsername": "zubin",
-            "adminPassword": "P@ssw0rd1234"
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
           },
           "storageProfile": {
             "osDisk": {
@@ -171,11 +186,11 @@
   "outputs": {
     "adminUsername": {
       "type": "string",
-      "value": "zubin"
+      "value": "[parameters('adminUsername')]"
     },
     "adminPassword": {
-      "type": "string",
-      "value": "P@ssw0rd1234"
+      "type": "securestring",
+      "value": "[parameters('adminPassword')]"
     }
   }
 }
