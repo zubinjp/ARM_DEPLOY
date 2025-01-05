@@ -7,8 +7,7 @@ pool:
   vmImage: 'ubuntu-latest'  # Using the latest Ubuntu VM image to run the pipeline
 
 variables:
-  vmUsername: $(vmUsername)  # Referencing the vmUsername variable
-  vmPassword: $(vmPassword)  # Referencing the vmPassword variable (secured)
+  - group: Group1  # Reference to the variable group 'Group1'
 
 jobs:
 - job: DeployARMTemplate
@@ -24,5 +23,5 @@ jobs:
         az deployment group create \
           --resource-group vm-dep-grp \
           --template-file arm-temp.json \
-          --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)  # Use the variables here
+          --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)  # Use the variables from Group1
     displayName: 'Deploy ARM Template'
