@@ -10,18 +10,18 @@ variables:
   - group: Group1  # Reference to the variable group 'Group1'
 
 jobs:
-- job: DeployARMTemplate
-  displayName: 'Deploy ARM Template to Azure'
-  steps:
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: 'Zubin\'s Sub'  # Replace with your Azure subscription name
-      scriptType: 'bash'  # Use bash for scripting
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        echo "Deploying ARM Template..."
-        az deployment group create \
-          --resource-group vm-dep-grp \
-          --template-file arm-temp.json \
-          --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)  # Use the variables from Group1
-    displayName: 'Deploy ARM Template'
+  - job: DeployARMTemplate
+    displayName: 'Deploy ARM Template to Azure'
+    steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'Zubin\'s Sub'  # Replace with your Azure subscription name
+          scriptType: 'bash'  # Use bash for scripting
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            echo "Deploying ARM Template..."
+            az deployment group create \
+              --resource-group vm-dep-grp \
+              --template-file arm-temp.json \
+              --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)  # Use the variables from Group1
+        displayName: 'Deploy ARM Template'
