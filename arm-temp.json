@@ -93,7 +93,12 @@
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
         }
       },
-      "name": "myNIC"
+      "name": "myNIC",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'myPublicIP')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVNet')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
+      ]
     },
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
@@ -140,7 +145,10 @@
           }
         }
       },
-      "name": "myVMSS"
+      "name": "myVMSS",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'myNIC')]"
+      ]
     },
     {
       "type": "Microsoft.Insights/autoscaleSettings",
@@ -180,7 +188,10 @@
           }
         ]
       },
-      "name": "myVMSSAutoscale"
+      "name": "myVMSSAutoscale",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'myVMSS')]"
+      ]
     }
   ],
   "outputs": {
