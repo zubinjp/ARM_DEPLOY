@@ -4,7 +4,7 @@
   "parameters": {
     "adminUsername": {
       "type": "string",
-      "defaultValue": "zubin",  // Default username value, can be overridden
+      "defaultValue": "zubin",
       "metadata": {
         "description": "The admin username for the VM"
       }
@@ -71,36 +71,6 @@
       "name": "myNSG"
     },
     {
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2022-05-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVNet', 'default')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'myPublicIP')]"
-              }
-            }
-          }
-        ],
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
-        }
-      },
-      "name": "myNIC",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', 'myPublicIP')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'myVNet')]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
-      ]
-    },
-    {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-03-01",
       "location": "[resourceGroup().location]",
@@ -134,11 +104,30 @@
             }
           },
           "networkProfile": {
-            "networkInterfaces": [
+            "networkInterfaceConfigurations": [
               {
-                "id": "[resourceId('Microsoft.Network/networkInterfaces', 'myNIC')]",
+                "name": "myNICConfig",
                 "properties": {
-                  "primary": true
+                  "primary": true,
+                  "ipConfigurations": [
+                    {
+                      "name": "ipconfig1",
+                      "properties": {
+                        "subnet": {
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVNet', 'default')]"
+                        },
+                        "publicIPAddressConfiguration": {
+                          "name": "publicIP",
+                          "properties": {
+                            "publicIPAllocationMethod": "Dynamic"
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
+                  }
                 }
               }
             ]
@@ -147,7 +136,8 @@
       },
       "name": "myVMSS",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', 'myNIC')]"
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVNet')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
       ]
     },
     {
@@ -157,7 +147,7 @@
       "properties": {
         "enabled": true,
         "targetResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'myVMSS')]",
-        "profile": [
+        "profiles": [
           {
             "name": "ScaleProfile",
             "capacity": {
@@ -167,22 +157,34 @@
             },
             "rules": [
               {
-                "metricName": "Percentage CPU",
-                "timeAggregation": "Average",
-                "operator": "GreaterThan",
-                "threshold": 75,
-                "direction": "Increase",
-                "changeCount": 1,
-                "cooldown": "PT5M"
+                "metricTrigger": {
+                  "metricName": "Percentage CPU",
+                  "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'myVMSS')]",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 75
+                },
+                "scaleAction": {
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": "1",
+                  "cooldown": "PT5M"
+                }
               },
               {
-                "metricName": "Percentage CPU",
-                "timeAggregation": "Average",
-                "operator": "LessThan",
-                "threshold": 25,
-                "direction": "Decrease",
-                "changeCount": 1,
-                "cooldown": "PT5M"
+                "metricTrigger": {
+                  "metricName": "Percentage CPU",
+                  "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'myVMSS')]",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 25
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": "1",
+                  "cooldown": "PT5M"
+                }
               }
             ]
           }
@@ -198,10 +200,6 @@
     "adminUsername": {
       "type": "string",
       "value": "[parameters('adminUsername')]"
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "value": "[parameters('adminPassword')]"
     }
   }
 }
