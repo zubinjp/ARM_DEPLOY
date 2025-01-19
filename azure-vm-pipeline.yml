@@ -24,7 +24,7 @@ jobs:
             az account set --subscription $(subscriptionId)  # Set the subscription context dynamically
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group vm-dep-grp \
+              --resource-group Vm-Dep-gp \
               --template-file arm-temp.json \
               --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)
         displayName: 'Deploy ARM Template'
