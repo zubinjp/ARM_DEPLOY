@@ -8,6 +8,12 @@ pool:
 
 variables:
   - group: Group1  # Reference to the variable group 'Group1'
+  - name: subscriptionId  # Add subscriptionId if you want to pass it dynamically
+  - name: roleAssignmentPrincipalId  # Add roleAssignmentPrincipalId as a variable
+  - name: vmssName  # Add VMSS name if needed
+  - name: vmUsername  # Add VM username
+  - name: vmPassword  # Add VM password
+  - name: roleDefinitionId  # Add role definition id if needed
 
 jobs:
   - job: DeployARMTemplate
