@@ -8,6 +8,7 @@ pool:
 
 variables:
   - group: Group1  # Reference to the variable group 'Group1'
+  - name: subscriptionId  # Add subscriptionId if you want to pass it dynamically
 
 jobs:
   - job: DeployARMTemplate
@@ -15,20 +16,22 @@ jobs:
     steps:
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'Zubin''s Sub'  # Double the apostrophe to escape it in YAML
+          azureSubscription: 'Zubin''s Sub'  # Ensure Service Connection is correctly set
           scriptType: 'bash'  # Use bash for scripting
           scriptLocation: 'inlineScript'
           inlineScript: |
+            echo "Setting subscription context..."
+            az account set --subscription $(subscriptionId)  # Set the subscription context dynamically
             echo "Deploying ARM Template..."
             az deployment group create \
               --resource-group vm-dep-grp \
               --template-file arm-temp.json \
-              --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)  # Use the variables from Group1
+              --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)
         displayName: 'Deploy ARM Template'
 
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'Zubin''s Sub'  # Double the apostrophe to escape it in YAML
+          azureSubscription: 'Zubin''s Sub'  # Ensure Service Connection is correctly set
           scriptType: 'bash'  # Use bash for scripting
           scriptLocation: 'inlineScript'
           inlineScript: |
