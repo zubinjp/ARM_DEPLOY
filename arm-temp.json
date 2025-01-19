@@ -1,205 +1,70 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "adminUsername": {
-      "type": "string",
-      "defaultValue": "zubin",
-      "metadata": {
-        "description": "The admin username for the VM"
-      }
+  "type": "Microsoft.Compute/virtualMachineScaleSets",
+  "apiVersion": "2022-03-01",
+  "location": "[resourceGroup().location]",
+  "sku": {
+    "name": "Standard_B1s",
+    "tier": "Standard",
+    "capacity": 2
+  },
+  "properties": {
+    "upgradePolicy": {
+      "mode": "Automatic"
     },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The admin password for the VM"
+    "virtualMachineProfile": {
+      "osProfile": {
+        "computerNamePrefix": "myVMSS",
+        "adminUsername": "[parameters('adminUsername')]",
+        "adminPassword": "[parameters('adminPassword')]"
+      },
+      "storageProfile": {
+        "osDisk": {
+          "createOption": "FromImage",
+          "managedDisk": {
+            "storageAccountType": "Standard_LRS"
+          }
+        },
+        "imageReference": {
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "2019-Datacenter",
+          "version": "latest"
+        }
+      },
+      "networkProfile": {
+        "networkInterfaceConfigurations": [
+          {
+            "name": "myNICConfig",
+            "properties": {
+              "primary": true,
+              "ipConfigurations": [
+                {
+                  "name": "ipconfig1",
+                  "properties": {
+                    "subnet": {
+                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVNet', 'default')]"
+                    },
+                    "publicIPAddressConfiguration": {
+                      "name": "publicIP",
+                      "properties": {
+                        "publicIPAllocationMethod": "Dynamic"
+                      }
+                    }
+                  }
+                }
+              ],
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
+              }
+            }
+          }
+        ]
       }
     }
   },
-  "resources": [
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2022-05-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic"
-      },
-      "name": "myPublicIP"
-    },
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2022-05-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "10.0.0.0/16"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "default",
-            "properties": {
-              "addressPrefix": "10.0.0.0/24"
-            }
-          }
-        ]
-      },
-      "name": "myVNet"
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2022-05-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "AllowRDP",
-            "properties": {
-              "priority": 100,
-              "protocol": "*",
-              "access": "Allow",
-              "direction": "Inbound",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "sourcePortRange": "*"
-            }
-          }
-        ]
-      },
-      "name": "myNSG"
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachineScaleSets",
-      "apiVersion": "2022-03-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "sku": {
-          "name": "Standard_B1s",
-          "capacity": 2
-        },
-        "upgradePolicy": {
-          "mode": "Automatic"
-        },
-        "virtualMachineProfile": {
-          "osProfile": {
-            "computerNamePrefix": "myVMSS",
-            "adminUsername": "[parameters('adminUsername')]",
-            "adminPassword": "[parameters('adminPassword')]"
-          },
-          "storageProfile": {
-            "osDisk": {
-              "createOption": "FromImage",
-              "managedDisk": {
-                "storageAccountType": "Standard_LRS"
-              },
-              "osType": "Windows"
-            },
-            "imageReference": {
-              "publisher": "MicrosoftWindowsServer",
-              "offer": "WindowsServer",
-              "sku": "2019-Datacenter",
-              "version": "latest"
-            }
-          },
-          "networkProfile": {
-            "networkInterfaceConfigurations": [
-              {
-                "name": "myNICConfig",
-                "properties": {
-                  "primary": true,
-                  "ipConfigurations": [
-                    {
-                      "name": "ipconfig1",
-                      "properties": {
-                        "subnet": {
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVNet', 'default')]"
-                        },
-                        "publicIPAddressConfiguration": {
-                          "name": "publicIP",
-                          "properties": {
-                            "publicIPAllocationMethod": "Dynamic"
-                          }
-                        }
-                      }
-                    }
-                  ],
-                  "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
-                  }
-                }
-              }
-            ]
-          }
-        }
-      },
-      "name": "myVMSS",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'myVNet')]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
-      ]
-    },
-    {
-      "type": "Microsoft.Insights/autoscaleSettings",
-      "apiVersion": "2015-04-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "enabled": true,
-        "targetResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'myVMSS')]",
-        "profiles": [
-          {
-            "name": "ScaleProfile",
-            "capacity": {
-              "minimum": "2",
-              "maximum": "10",
-              "default": "2"
-            },
-            "rules": [
-              {
-                "metricTrigger": {
-                  "metricName": "Percentage CPU",
-                  "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'myVMSS')]",
-                  "timeAggregation": "Average",
-                  "operator": "GreaterThan",
-                  "threshold": 75
-                },
-                "scaleAction": {
-                  "direction": "Increase",
-                  "type": "ChangeCount",
-                  "value": "1",
-                  "cooldown": "PT5M"
-                }
-              },
-              {
-                "metricTrigger": {
-                  "metricName": "Percentage CPU",
-                  "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'myVMSS')]",
-                  "timeAggregation": "Average",
-                  "operator": "LessThan",
-                  "threshold": 25
-                },
-                "scaleAction": {
-                  "direction": "Decrease",
-                  "type": "ChangeCount",
-                  "value": "1",
-                  "cooldown": "PT5M"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "name": "myVMSSAutoscale",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'myVMSS')]"
-      ]
-    }
-  ],
-  "outputs": {
-    "adminUsername": {
-      "type": "string",
-      "value": "[parameters('adminUsername')]"
-    }
-  }
+  "name": "myVMSS",
+  "dependsOn": [
+    "[resourceId('Microsoft.Network/virtualNetworks', 'myVNet')]",
+    "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
+  ]
 }
