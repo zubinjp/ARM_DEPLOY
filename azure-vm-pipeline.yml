@@ -25,3 +25,17 @@ jobs:
               --template-file arm-temp.json \
               --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)  # Use the variables from Group1
         displayName: 'Deploy ARM Template'
+
+      # New step for RBAC role assignment
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'Zubin''s Sub'  # Double the apostrophe to escape it in YAML
+          scriptType: 'bash'  # Use bash for scripting
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            echo "Assigning RBAC role to VMSS..."
+            az role assignment create \
+              --assignee $(roleAssignmentPrincipalId) \
+              --role $(roleDefinitionId) \
+              --scope "/subscriptions/$(subscriptionId)/resourceGroups/vm-dep-grp/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
+        displayName: 'Assign RBAC Role to VMSS'
