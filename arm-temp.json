@@ -55,7 +55,7 @@
     },
     "roleDefinitionId": {
       "type": "string",
-      "defaultValue": "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}",
+      "defaultValue": "/subscriptions/your-subscription-id/providers/Microsoft.Authorization/roleDefinitions/your-role-definition-id",
       "metadata": {
         "description": "The role definition ID (e.g., 'Virtual Machine Contributor')."
       }
