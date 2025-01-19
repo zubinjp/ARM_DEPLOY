@@ -39,6 +39,13 @@
       "metadata": {
         "description": "Name of the subnet."
       }
+    },
+    "vmssName": {
+      "type": "string",
+      "defaultValue": "myVMSS",
+      "metadata": {
+        "description": "The name of the Virtual Machine Scale Set."
+      }
     }
   },
   "variables": {
@@ -69,7 +76,7 @@
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-03-01",
-      "name": "myVMSS",
+      "name": "[parameters('vmssName')]",
       "location": "[variables('location')]",
       "sku": {
         "name": "[parameters('vmSize')]",
@@ -82,7 +89,7 @@
         },
         "virtualMachineProfile": {
           "osProfile": {
-            "computerNamePrefix": "myVMSS",
+            "computerNamePrefix": "[parameters('vmssName')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]"
           },
@@ -127,10 +134,10 @@
       ]
     }
   ],
-"outputs": {
-  "vmssName": {
-    "type": "string",
-    "value": "[parameters('vmssName')]"
+  "outputs": {
+    "vmssName": {
+      "type": "string",
+      "value": "[parameters('vmssName')]"
+    }
   }
-}
 }
