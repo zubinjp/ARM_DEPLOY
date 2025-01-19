@@ -1,70 +1,136 @@
 {
-  "type": "Microsoft.Compute/virtualMachineScaleSets",
-  "apiVersion": "2022-03-01",
-  "location": "[resourceGroup().location]",
-  "sku": {
-    "name": "Standard_B1s",
-    "tier": "Standard",
-    "capacity": 2
-  },
-  "properties": {
-    "upgradePolicy": {
-      "mode": "Automatic"
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin username for the virtual machines."
+      }
     },
-    "virtualMachineProfile": {
-      "osProfile": {
-        "computerNamePrefix": "myVMSS",
-        "adminUsername": "[parameters('adminUsername')]",
-        "adminPassword": "[parameters('adminPassword')]"
-      },
-      "storageProfile": {
-        "osDisk": {
-          "createOption": "FromImage",
-          "managedDisk": {
-            "storageAccountType": "Standard_LRS"
-          }
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password for the virtual machines."
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_B1s",
+      "allowedValues": [
+        "Standard_B1s",
+        "Standard_D2s_v3",
+        "Standard_A1_v2"
+      ],
+      "metadata": {
+        "description": "Size of the virtual machine."
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "myVNet",
+      "metadata": {
+        "description": "Name of the virtual network."
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "default",
+      "metadata": {
+        "description": "Name of the subnet."
+      }
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-11-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
         },
-        "imageReference": {
-          "publisher": "MicrosoftWindowsServer",
-          "offer": "WindowsServer",
-          "sku": "2019-Datacenter",
-          "version": "latest"
-        }
-      },
-      "networkProfile": {
-        "networkInterfaceConfigurations": [
+        "subnets": [
           {
-            "name": "myNICConfig",
+            "name": "[parameters('subnetName')]",
             "properties": {
-              "primary": true,
-              "ipConfigurations": [
-                {
-                  "name": "ipconfig1",
-                  "properties": {
-                    "subnet": {
-                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVNet', 'default')]"
-                    },
-                    "publicIPAddressConfiguration": {
-                      "name": "publicIP",
-                      "properties": {
-                        "publicIPAllocationMethod": "Dynamic"
-                      }
-                    }
-                  }
-                }
-              ],
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
-              }
+              "addressPrefix": "10.0.0.0/24"
             }
           }
         ]
       }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2022-03-01",
+      "name": "myVMSS",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[parameters('vmSize')]",
+        "tier": "Standard",
+        "capacity": 2
+      },
+      "properties": {
+        "upgradePolicy": {
+          "mode": "Automatic"
+        },
+        "virtualMachineProfile": {
+          "osProfile": {
+            "computerNamePrefix": "myVMSS",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+          },
+          "storageProfile": {
+            "osDisk": {
+              "createOption": "FromImage",
+              "managedDisk": {
+                "storageAccountType": "Standard_LRS"
+              }
+            },
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "UbuntuServer",
+              "sku": "18.04-LTS",
+              "version": "latest"
+            }
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "myNICConfig",
+                "properties": {
+                  "primary": true,
+                  "ipConfigurations": [
+                    {
+                      "name": "ipconfig1",
+                      "properties": {
+                        "subnet": {
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+      ]
     }
-  },
-  "name": "myVMSS",
-  "dependsOn": [
-    "[resourceId('Microsoft.Network/virtualNetworks', 'myVNet')]",
-    "[resourceId('Microsoft.Network/networkSecurityGroups', 'myNSG')]"
-  ]
+  ],
+  "outputs": {
+    "vmssName": {
+      "type": "string",
+      "value": "[reference('myVMSS').name]"
+    }
+  }
 }
