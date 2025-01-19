@@ -8,12 +8,7 @@ pool:
 
 variables:
   - group: Group1  # Reference to the variable group 'Group1'
-  - name: subscriptionId  # Add subscriptionId if you want to pass it dynamically
-  - name: roleAssignmentPrincipalId  # Add roleAssignmentPrincipalId as a variable
-  - name: vmssName  # Add VMSS name if needed
-  - name: vmUsername  # Add VM username
-  - name: vmPassword  # Add VM password
-  - name: roleDefinitionId  # Add role definition id if needed
+  # Ensure these variables are correctly referenced in Group1 or added here
 
 jobs:
   - job: DeployARMTemplate
@@ -26,6 +21,11 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
+            # Check if subscriptionId is set
+            if [ -z "$(subscriptionId)" ]; then
+              echo "Error: subscriptionId is not set."
+              exit 1
+            fi
             az account set --subscription $(subscriptionId)  # Set the subscription context dynamically
             echo "Deploying ARM Template..."
             az deployment group create \
@@ -40,6 +40,12 @@ jobs:
           scriptType: 'bash'  # Use bash for scripting
           scriptLocation: 'inlineScript'
           inlineScript: |
+            echo "Checking if roleAssignmentPrincipalId is set..."
+            # Check if roleAssignmentPrincipalId is set
+            if [ -z "$(roleAssignmentPrincipalId)" ]; then
+              echo "Error: roleAssignmentPrincipalId is not set."
+              exit 1
+            fi
             echo "Assigning RBAC role to VMSS..."
             az role assignment create \
               --assignee $(roleAssignmentPrincipalId) \
