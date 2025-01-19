@@ -26,7 +26,6 @@ jobs:
               --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)  # Use the variables from Group1
         displayName: 'Deploy ARM Template'
 
-      # New step for RBAC role assignment
       - task: AzureCLI@2
         inputs:
           azureSubscription: 'Zubin''s Sub'  # Double the apostrophe to escape it in YAML
