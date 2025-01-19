@@ -25,7 +25,9 @@ jobs:
             az deployment group create \
               --resource-group Vm-Dep-Gp \
               --template-file arm-temp.json \
-              --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)
+              --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword) \
+              --parameters roleAssignmentPrincipalId=$(roleAssignmentPrincipalId) \
+              --parameters subscriptionId=$(subscriptionId)
         displayName: 'Deploy ARM Template'
 
       - task: AzureCLI@2
