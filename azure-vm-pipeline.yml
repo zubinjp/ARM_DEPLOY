@@ -8,7 +8,6 @@ pool:
 
 variables:
   - group: Group1  # Reference to the variable group 'Group1'
-  - name: subscriptionId  # Add subscriptionId if you want to pass it dynamically
 
 jobs:
   - job: DeployARMTemplate
@@ -24,7 +23,7 @@ jobs:
             az account set --subscription $(subscriptionId)  # Set the subscription context dynamically
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group Vm-Dep-gp \
+              --resource-group Vm-Dep-Gp \
               --template-file arm-temp.json \
               --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword)
         displayName: 'Deploy ARM Template'
@@ -39,5 +38,5 @@ jobs:
             az role assignment create \
               --assignee $(roleAssignmentPrincipalId) \
               --role $(roleDefinitionId) \
-              --scope "/subscriptions/$(subscriptionId)/resourceGroups/vm-dep-grp/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
+              --scope "/subscriptions/$(subscriptionId)/resourceGroups/Vm-Dap-Gp/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
         displayName: 'Assign RBAC Role to VMSS'
