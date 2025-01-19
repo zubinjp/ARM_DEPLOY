@@ -127,10 +127,10 @@
       ]
     }
   ],
-  "outputs": {
-    "vmssName": {
-      "type": "string",
-      "value": "[reference('myVMSS').name]"
-    }
+"outputs": {
+  "vmssName": {
+    "type": "string",
+    "value": "[parameters('vmssName')]"
   }
+}
 }
