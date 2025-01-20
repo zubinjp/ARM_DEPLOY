@@ -15,7 +15,7 @@ jobs:
     steps:
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'Zubin''s Sub'  # Ensure Service Connection is correctly set
+          azureSubscription: 'VMSS-connection'  # Ensure Service Connection is correctly set
           scriptType: 'bash'  # Use bash for scripting
           scriptLocation: 'inlineScript'
           inlineScript: |
