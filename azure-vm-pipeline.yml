@@ -40,5 +40,5 @@ jobs:
             az role assignment create \
               --assignee $(roleAssignmentPrincipalId) \
               --role $(roleDefinitionId) \
-              --scope "/subscriptions/$(subscriptionId)/resourceGroups/Vm-Dap-Gp/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
+              --scope "/subscriptions/$(subscriptionId)/resourceGroups/Vm-Dep-Gp/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
         displayName: 'Assign RBAC Role to VMSS'
