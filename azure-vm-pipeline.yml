@@ -15,7 +15,7 @@ jobs:
     steps:
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'  # Ensure Service Connection is correctly set
+          azureSubscription: 'VMSS-connection'  # Ensure Service Connection name matches exactly
           scriptType: 'bash'  # Use bash for scripting
           scriptLocation: 'inlineScript'
           inlineScript: |
@@ -32,11 +32,17 @@ jobs:
 
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'  # Ensure Service Connection is correctly set
-          scriptType: 'bash'  # Use bash for scripting
+          azureSubscription: 'VMSS-connection'  # Ensure Service Connection name matches exactly
+          scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Assigning RBAC role to VMSS..."
+
+            # Validate inputs
+            echo "Role Definition: $(roleDefinitionId)"
+            echo "Principal ID (Group Object ID): $(roleAssignmentPrincipalId)"
+
+            # Assign the role
             az role assignment create \
               --assignee $(roleAssignmentPrincipalId) \
               --role $(roleDefinitionId) \
