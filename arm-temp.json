@@ -27,7 +27,7 @@
       }
     },
     "adminPassword": {
-      "type": "string",
+      "type": "securestring",
       "metadata": {
         "description": "The admin password for the VMSS."
       }
@@ -58,9 +58,9 @@
     }
   },
   "variables": {
-    "vnetId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/[parameters('vnetName')]",
-    "subnetId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/[parameters('vnetName')]/subnets/[parameters('subnetName')]",
-    "vmssId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Compute/virtualMachineScaleSets/[parameters('vmssName')]"
+    "vnetId": "[subscriptionResourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+    "subnetId": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+    "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
   },
   "resources": [
     {
