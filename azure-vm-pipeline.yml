@@ -10,6 +10,12 @@ variables:
   - group: Group1  # Reference to variable group 'Group1'
   subnetName: 'mySubnet'  # Example subnet name
   vnetName: 'myVnet'  # Example virtual network name
+  subscriptionId: '<your-subscription-id>'  # Ensure this variable is set
+  vmUsername: '<your-vm-username>'  # Ensure this variable is set
+  vmPassword: '<your-vm-password>'  # Ensure this variable is set
+  roleAssignmentPrincipalId: '<your-principal-id>'  # Ensure this variable is set
+  roleDefinitionId: '<your-role-definition-id>'  # Ensure this variable is set
+  vmssName: '<your-vmss-name>'  # Ensure this variable is set
 
 jobs:
   - job: DeployARMTemplate
