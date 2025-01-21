@@ -58,6 +58,12 @@
       "metadata": {
         "description": "The subscription ID."
       }
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the resource group."
+      }
     }
   },
   "variables": {
@@ -159,8 +165,8 @@
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
       ],
-      "scope": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/Vm-Dep-Gp"
-    } 
+      "scope": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]"
+    }
   ],
   "outputs": {
     "vmssName": {
