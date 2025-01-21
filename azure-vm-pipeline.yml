@@ -14,10 +14,6 @@ variables:
     value: 'mySubnet'  # Example subnet name
   - name: vnetName
     value: 'myVnet'  # Example virtual network name
-  - name: roleDefinitionId
-    value: 'b24988ac-6180-42a0-ab88-20f7382dd24c'  # Role definition ID for Virtual Machine Contributor
-  - name: vmssName
-    value: 'myVmss'  # Example VMSS name
 
 jobs:
   - job: DeployARMTemplate
