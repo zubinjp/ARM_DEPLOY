@@ -8,6 +8,8 @@ pool:
 
 variables:
   - group: Group1  # Reference to variable group 'Group1'
+  subnetName: 'mySubnet'  # Example subnet name
+  vnetName: 'myVnet'  # Example virtual network name
 
 jobs:
   - job: DeployARMTemplate
@@ -28,7 +30,8 @@ jobs:
               --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword) \
               --parameters roleAssignmentPrincipalId=$(roleAssignmentPrincipalId) \
               --parameters subscriptionId=$(subscriptionId) \
-              --parameters resourceGroupName=Vm-Dep-Gp  # Ensure that resourceGroupName is passed correctly here
+              --parameters subnetName=$(subnetName) \
+              --parameters vnetName=$(vnetName)
         displayName: 'Deploy ARM Template'
 
       - task: AzureCLI@2

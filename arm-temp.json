@@ -2,60 +2,65 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "resourceGroupName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the resource group."
-      }
-    },
-    "adminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Admin username for the virtual machines."
-      }
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Admin password for the virtual machines."
-      }
-    },
-    "roleAssignmentPrincipalId": {
-      "type": "string",
-      "metadata": {
-        "description": "The principal ID (user, group, or service principal) to assign the role to."
-      }
-    },
     "subscriptionId": {
       "type": "string",
       "metadata": {
         "description": "The subscription ID."
       }
     },
+    "resourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the resource group."
+      }
+    },
     "vmssName": {
       "type": "string",
-      "defaultValue": "myVMSS",
       "metadata": {
         "description": "The name of the Virtual Machine Scale Set."
       }
     },
-    "vnetName": {
+    "adminUsername": {
       "type": "string",
       "metadata": {
-        "description": "The name of the virtual network."
+        "description": "The admin username for the VMSS."
+      }
+    },
+    "adminPassword": {
+      "type": "string",
+      "metadata": {
+        "description": "The admin password for the VMSS."
+      }
+    },
+    "roleAssignmentPrincipalId": {
+      "type": "string",
+      "metadata": {
+        "description": "The principal ID of the role assignment."
+      }
+    },
+    "roleDefinitionId": {
+      "type": "string",
+      "metadata": {
+        "description": "The ID of the role definition to assign."
       }
     },
     "subnetName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the subnet."
+        "description": "The name of the subnet for the VMSS."
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the virtual network for the VMSS."
       }
     }
   },
   "variables": {
-    "roleDefinitionId": "/subscriptions/[parameters('subscriptionId')]/providers/Microsoft.Authorization/roleDefinitions/<roleDefinitionId>",
     "vnetId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/[parameters('vnetName')]",
-    "subnetId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/[parameters('vnetName')]/subnets/[parameters('subnetName')]"
+    "subnetId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/[parameters('vnetName')]/subnets/[parameters('subnetName')]",
+    "vmssId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Compute/virtualMachineScaleSets/[parameters('vmssName')]"
   },
   "resources": [
     {
@@ -107,11 +112,11 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(parameters('roleAssignmentPrincipalId'), parameters('resourceGroupName'))]",
       "properties": {
-        "roleDefinitionId": "[variables('roleDefinitionId')]",
+        "roleDefinitionId": "[parameters('roleDefinitionId')]",
         "principalId": "[parameters('roleAssignmentPrincipalId')]",
         "principalType": "ServicePrincipal"
       },
-      "scope": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]"
+      "scope": "[variables('vmssId')]"
     }
   ],
   "outputs": {
