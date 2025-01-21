@@ -8,7 +8,6 @@ pool:
 
 variables:
   - group: Group1  # Reference to variable group 'Group1'
-  # Define missing variables directly here
   resourceGroupName: 'Vm-Dep-Gp'  # Resource group name
   subnetName: 'mySubnet'  # Example subnet name
   vnetName: 'myVnet'  # Example virtual network name
