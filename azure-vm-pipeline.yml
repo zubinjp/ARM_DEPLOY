@@ -26,18 +26,18 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
-            az account set --subscription "$[variables(\'subscriptionId\')]"
+            az account set --subscription "$subscriptionId"
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group "$[variables(\'resourceGroupName\')]" \
+              --resource-group "$resourceGroupName" \
               --template-file arm-temp.json \
-              --parameters adminUsername="$[variables(\'vmUsername\')]" adminPassword="$[variables(\'vmPassword\')]" \
-              --parameters roleAssignmentPrincipalId="$[variables(\'roleAssignmentPrincipalId\')]" \
-              --parameters roleDefinitionId="$[variables(\'roleDefinitionId\')]" \
-              --parameters subscriptionId="$[variables(\'subscriptionId\')]" \
-              --parameters subnetName="$[variables(\'subnetName\')]" \
-              --parameters vnetName="$[variables(\'vnetName\')]" \
-              --parameters vmssName="$[variables(\'vmssName\')]"
+              --parameters adminUsername="$vmUsername" adminPassword="$vmPassword" \
+              --parameters roleAssignmentPrincipalId="$roleAssignmentPrincipalId" \
+              --parameters roleDefinitionId="$roleDefinitionId" \
+              --parameters subscriptionId="$subscriptionId" \
+              --parameters subnetName="$subnetName" \
+              --parameters vnetName="$vnetName" \
+              --parameters vmssName="$vmssName"
         displayName: 'Deploy ARM Template'
 
       - task: AzureCLI@2
@@ -48,7 +48,7 @@ jobs:
           inlineScript: |
             echo "Assigning RBAC role to VMSS..."
             az role assignment create \
-              --assignee "$[variables(\'roleAssignmentPrincipalId\')]" \
-              --role "$[variables(\'roleDefinitionId\')]" \
-              --scope "/subscriptions/[variables(\'subscriptionId\')]/resourceGroups/[variables(\'resourceGroupName')]/providers/Microsoft.Compute/virtualMachineScaleSets/[variables(\'vmssName\')]"
+              --assignee "$roleAssignmentPrincipalId" \
+              --role "$roleDefinitionId" \
+              --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachineScaleSets/$vmssName"
         displayName: 'Assign RBAC Role to VMSS'
