@@ -1,13 +1,13 @@
 trigger:
   branches:
     include:
-      - main  # Trigger the pipeline when changes are pushed to the 'main' branch
+      - main  # Trigger the pipeline on changes to the 'main' branch
 
 pool:
-  vmImage: 'ubuntu-latest'  # Using the latest Ubuntu VM image to run the pipeline
+  vmImage: 'ubuntu-latest'  # Latest Ubuntu VM image
 
 variables:
-  - group: Group1  # Reference to the variable group 'Group1' (ensure variables are present here)
+  - group: Group1  # Reference to variable group 'Group1'
 
 jobs:
   - job: DeployARMTemplate
@@ -15,12 +15,12 @@ jobs:
     steps:
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'  # Ensure Service Connection name matches exactly
-          scriptType: 'bash'  # Use bash for scripting
+          azureSubscription: 'VMSS-connection'  # Ensure Service Connection matches exactly
+          scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
-            az account set --subscription $(subscriptionId)  # Set the subscription context dynamically
+            az account set --subscription $(subscriptionId)
             echo "Deploying ARM Template..."
             az deployment group create \
               --resource-group Vm-Dep-Gp \
@@ -32,19 +32,13 @@ jobs:
 
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'  # Ensure Service Connection name matches exactly
+          azureSubscription: 'VMSS-connection'  # Ensure Service Connection matches exactly
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Assigning RBAC role to VMSS..."
-
-            # Validate inputs
-            echo "Role Definition: $(roleDefinitionId)"
-            echo "Principal ID (Group Object ID): $(roleAssignmentPrincipalId)"
-
-            # Assign the role
             az role assignment create \
-              --assignee 009bd4fa-531c-4d2c-b1be-f4dcc47b8cdd \  # Updated Service Principal Object ID
+              --assignee $(roleAssignmentPrincipalId) \
               --role $(roleDefinitionId) \
               --scope "/subscriptions/$(subscriptionId)/resourceGroups/Vm-Dep-Gp/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
         displayName: 'Assign RBAC Role to VMSS'
