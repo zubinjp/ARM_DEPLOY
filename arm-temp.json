@@ -53,13 +53,6 @@
         "description": "The principal ID (user, group, or service principal) to assign the role to."
       }
     },
-    "roleDefinitionId": {
-      "type": "string",
-      "defaultValue": "/subscriptions/your-subscription-id/providers/Microsoft.Authorization/roleDefinitions/your-role-definition-id",
-      "metadata": {
-        "description": "The role definition ID (e.g., 'Virtual Machine Contributor')."
-      }
-    },
     "subscriptionId": {
       "type": "string",
       "metadata": {
@@ -69,7 +62,8 @@
   },
   "variables": {
     "location": "[resourceGroup().location]",
-    "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
+    "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
+    "roleDefinitionId": "/subscriptions/[parameters('subscriptionId')]/providers/Microsoft.Authorization/roleDefinitions/7e8b8f08-cd6c-47b3-b855-6b05c9f72e41" // Virtual Machine Contributor role
   },
   "resources": [
     {
@@ -158,14 +152,14 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(parameters('roleAssignmentPrincipalId'), variables('vmssId'))]",
       "properties": {
-        "roleDefinitionId": "[parameters('roleDefinitionId')]",
+        "roleDefinitionId": "[variables('roleDefinitionId')]",
         "principalId": "[parameters('roleAssignmentPrincipalId')]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
       ],
-      "scope": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/vm-dep-grp/providers/Microsoft.Compute/virtualMachineScaleSets/[parameters('vmssName')]"
+      "scope": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/Vm-Dep-Gp/providers/Microsoft.Compute/virtualMachineScaleSets/[parameters('vmssName')]"
     }
   ],
   "outputs": {
