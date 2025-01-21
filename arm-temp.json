@@ -2,6 +2,12 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "resourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the resource group."
+      }
+    },
     "adminUsername": {
       "type": "string",
       "metadata": {
@@ -12,39 +18,6 @@
       "type": "securestring",
       "metadata": {
         "description": "Admin password for the virtual machines."
-      }
-    },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_B1s",
-      "allowedValues": [
-        "Standard_B1s",
-        "Standard_D2s_v3",
-        "Standard_A1_v2"
-      ],
-      "metadata": {
-        "description": "Size of the virtual machine."
-      }
-    },
-    "vnetName": {
-      "type": "string",
-      "defaultValue": "myVNet",
-      "metadata": {
-        "description": "Name of the virtual network."
-      }
-    },
-    "subnetName": {
-      "type": "string",
-      "defaultValue": "default",
-      "metadata": {
-        "description": "Name of the subnet."
-      }
-    },
-    "vmssName": {
-      "type": "string",
-      "defaultValue": "myVMSS",
-      "metadata": {
-        "description": "The name of the Virtual Machine Scale Set."
       }
     },
     "roleAssignmentPrincipalId": {
@@ -59,86 +32,51 @@
         "description": "The subscription ID."
       }
     },
-    "resourceGroupName": {
+    "vmssName": {
       "type": "string",
+      "defaultValue": "myVMSS",
       "metadata": {
-        "description": "The name of the resource group."
+        "description": "The name of the Virtual Machine Scale Set."
       }
     }
   },
   "variables": {
-    "location": "[resourceGroup().location]",
-    "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
-    "roleDefinitionId": "/subscriptions/[parameters('subscriptionId')]/providers/Microsoft.Authorization/roleDefinitions/7e8b8f08-cd6c-47b3-b855-6b05c9f72e41" // Virtual Machine Contributor role
+    "roleDefinitionId": "/subscriptions/[parameters('subscriptionId')]/providers/Microsoft.Authorization/roleDefinitions/<roleDefinitionId>"
   },
   "resources": [
     {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-11-01",
-      "name": "[parameters('vnetName')]",
-      "location": "[variables('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "10.0.0.0/16"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[parameters('subnetName')]",
-            "properties": {
-              "addressPrefix": "10.0.0.0/24"
-            }
-          }
-        ]
-      }
-    },
-    {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-03-01",
+      "location": "[resourceGroup().location]",
       "name": "[parameters('vmssName')]",
-      "location": "[variables('location')]",
-      "sku": {
-        "name": "[parameters('vmSize')]",
-        "tier": "Standard",
-        "capacity": 2
-      },
       "properties": {
-        "upgradePolicy": {
-          "mode": "Automatic"
-        },
+        "overprovision": true,
         "virtualMachineProfile": {
           "osProfile": {
-            "computerNamePrefix": "[parameters('vmssName')]",
+            "computerNamePrefix": "vmss",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]"
           },
           "storageProfile": {
-            "osDisk": {
-              "createOption": "FromImage",
-              "managedDisk": {
-                "storageAccountType": "Standard_LRS"
-              }
-            },
             "imageReference": {
-              "publisher": "Canonical",
-              "offer": "UbuntuServer",
-              "sku": "18.04-LTS",
+              "publisher": "MicrosoftWindowsServer",
+              "offer": "WindowsServer",
+              "sku": "2019-Datacenter",
               "version": "latest"
             }
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
               {
-                "name": "myNICConfig",
+                "name": "nic",
                 "properties": {
                   "primary": true,
                   "ipConfigurations": [
                     {
-                      "name": "ipconfig1",
+                      "name": "ipconfig",
                       "properties": {
                         "subnet": {
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+                          "id": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/myVNet/subnets/default"
                         }
                       }
                     }
@@ -148,27 +86,25 @@
             ]
           }
         }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(parameters('roleAssignmentPrincipalId'), variables('vmssId'))]",
+      "name": "[guid(parameters('roleAssignmentPrincipalId'), parameters('resourceGroupName'))]",
       "properties": {
         "roleDefinitionId": "[variables('roleDefinitionId')]",
         "principalId": "[parameters('roleAssignmentPrincipalId')]",
         "principalType": "ServicePrincipal"
       },
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
-      ],
       "scope": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]"
     }
   ],
   "outputs": {
+    "resourceGroupName": {
+      "type": "string",
+      "value": "[parameters('resourceGroupName')]"
+    },
     "vmssName": {
       "type": "string",
       "value": "[parameters('vmssName')]"
