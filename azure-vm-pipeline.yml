@@ -23,16 +23,16 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
-            az account set --subscription $(subscriptionId)
+            az account set --subscription "$(subscriptionId)"
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group $(resourceGroupName) \
+              --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
-              --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword) \
-              --parameters roleAssignmentPrincipalId=$(roleAssignmentPrincipalId) \
-              --parameters subscriptionId=$(subscriptionId) \
-              --parameters subnetName=$(subnetName) \
-              --parameters vnetName=$(vnetName)
+              --parameters adminUsername="$(vmUsername)" adminPassword="$(vmPassword)" \
+              --parameters roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
+              --parameters subscriptionId="$(subscriptionId)" \
+              --parameters subnetName="$(subnetName)" \
+              --parameters vnetName="$(vnetName)"
         displayName: 'Deploy ARM Template'
 
       - task: AzureCLI@2
@@ -43,7 +43,7 @@ jobs:
           inlineScript: |
             echo "Assigning RBAC role to VMSS..."
             az role assignment create \
-              --assignee $(roleAssignmentPrincipalId) \
-              --role $(roleDefinitionId) \
+              --assignee "$(roleAssignmentPrincipalId)" \
+              --role "$(roleDefinitionId)" \
               --scope "/subscriptions/$(subscriptionId)/resourceGroups/$(resourceGroupName)/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
         displayName: 'Assign RBAC Role to VMSS'
