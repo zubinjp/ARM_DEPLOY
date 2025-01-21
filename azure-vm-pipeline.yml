@@ -8,9 +8,12 @@ pool:
 
 variables:
   - group: Group1  # Reference to variable group 'Group1'
-  resourceGroupName: 'Vm-Dep-Gp'  # Resource group name
-  subnetName: 'mySubnet'  # Example subnet name
-  vnetName: 'myVnet'  # Example virtual network name
+  - name: resourceGroupName
+    value: 'Vm-Dep-Gp'  # Resource group name
+  - name: subnetName
+    value: 'mySubnet'  # Example subnet name
+  - name: vnetName
+    value: 'myVnet'  # Example virtual network name
 
 jobs:
   - job: DeployARMTemplate
