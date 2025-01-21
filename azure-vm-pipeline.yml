@@ -14,6 +14,14 @@ variables:
     value: 'mySubnet'  # Example subnet name
   - name: vnetName
     value: 'myVnet'  # Example virtual network name
+  - name: subscriptionId
+    value: '8b3f97cc-9d4d-465e-b90a-22e1c47a2057'  # Substitute with actual subscription ID if different
+  - name: vmUsername
+    value: 'your-username'  # Substitute with actual VM username
+  - name: vmPassword
+    value: 'your-password'  # Substitute with actual VM password
+  - name: roleAssignmentPrincipalId
+    value: 'your-principal-id'  # Substitute with actual principal ID
 
 jobs:
   - job: DeployARMTemplate
@@ -21,34 +29,34 @@ jobs:
     steps:
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'  # Ensure Service Connection matches exactly
+          azureSubscription: 'VMSS-connection'  
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
-            az account set --subscription "$subscriptionId"
+            az account set --subscription $subscriptionId
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group "$resourceGroupName" \
+              --resource-group $resourceGroupName \
               --template-file arm-temp.json \
-              --parameters adminUsername="$vmUsername" adminPassword="$vmPassword" \
-              --parameters roleAssignmentPrincipalId="$roleAssignmentPrincipalId" \
-              --parameters roleDefinitionId="$roleDefinitionId" \
-              --parameters subscriptionId="$subscriptionId" \
-              --parameters subnetName="$subnetName" \
-              --parameters vnetName="$vnetName" \
-              --parameters vmssName="$vmssName"
+              --parameters adminUsername=$vmUsername adminPassword=$vmPassword \
+              --parameters roleAssignmentPrincipalId=$roleAssignmentPrincipalId \
+              --parameters roleDefinitionId=$roleDefinitionId \
+              --parameters subscriptionId=$subscriptionId \
+              --parameters subnetName=$subnetName \
+              --parameters vnetName=$vnetName \
+              --parameters vmssName=$vmssName
         displayName: 'Deploy ARM Template'
 
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'  # Ensure Service Connection matches exactly
+          azureSubscription: 'VMSS-connection'  
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Assigning RBAC role to VMSS..."
             az role assignment create \
-              --assignee "$roleAssignmentPrincipalId" \
-              --role "$roleDefinitionId" \
+              --assignee $roleAssignmentPrincipalId \
+              --role $roleDefinitionId \
               --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachineScaleSets/$vmssName"
         displayName: 'Assign RBAC Role to VMSS'
