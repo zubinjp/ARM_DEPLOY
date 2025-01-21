@@ -38,10 +38,24 @@
       "metadata": {
         "description": "The name of the Virtual Machine Scale Set."
       }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the virtual network."
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the subnet."
+      }
     }
   },
   "variables": {
-    "roleDefinitionId": "/subscriptions/[parameters('subscriptionId')]/providers/Microsoft.Authorization/roleDefinitions/<roleDefinitionId>"
+    "roleDefinitionId": "/subscriptions/[parameters('subscriptionId')]/providers/Microsoft.Authorization/roleDefinitions/<roleDefinitionId>",
+    "vnetId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/[parameters('vnetName')]",
+    "subnetId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/[parameters('vnetName')]/subnets/[parameters('subnetName')]"
   },
   "resources": [
     {
@@ -76,7 +90,7 @@
                       "name": "ipconfig",
                       "properties": {
                         "subnet": {
-                          "id": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Network/virtualNetworks/myVNet/subnets/default"
+                          "id": "[variables('subnetId')]"
                         }
                       }
                     }
