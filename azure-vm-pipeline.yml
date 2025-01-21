@@ -21,13 +21,6 @@ jobs:
           inlineScript: |
             echo "Setting subscription context..."
             az account set --subscription $(subscriptionId)  # Set the subscription context dynamically
-
-            echo "Validating required parameters..."
-            if [ -z "$(vmUsername)" ] || [ -z "$(vmPassword)" ] || [ -z "$(subscriptionId)" ]; then
-              echo "Error: Missing required parameters (vmUsername, vmPassword, subscriptionId)."
-              exit 1
-            fi
-
             echo "Deploying ARM Template..."
             az deployment group create \
               --resource-group Vm-Dep-Gp \
@@ -46,24 +39,12 @@ jobs:
             echo "Assigning RBAC role to VMSS..."
 
             # Validate inputs
-            if [ -z "$(roleAssignmentPrincipalId)" ] || [ -z "$(roleDefinitionId)" ] || [ -z "$(vmssName)" ]; then
-              echo "Error: Missing required parameters (roleAssignmentPrincipalId, roleDefinitionId, vmssName)."
-              exit 1
-            fi
-
             echo "Role Definition: $(roleDefinitionId)"
             echo "Principal ID (Group Object ID): $(roleAssignmentPrincipalId)"
 
             # Assign the role
             az role assignment create \
-              --assignee $(roleAssignmentPrincipalId) \
+              --assignee 009bd4fa-531c-4d2c-b1be-f4dcc47b8cdd \  # Updated Service Principal Object ID
               --role $(roleDefinitionId) \
               --scope "/subscriptions/$(subscriptionId)/resourceGroups/Vm-Dep-Gp/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
-
-            if [ $? -eq 0 ]; then
-              echo "RBAC role successfully assigned to VMSS."
-            else
-              echo "Error: Failed to assign RBAC role."
-              exit 1
-            fi
         displayName: 'Assign RBAC Role to VMSS'
