@@ -23,7 +23,7 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
-            az account set --subscription $(subscriptionId)  # Subscription ID
+            az account set --subscription $(subscriptionId)
             echo "Deploying ARM Template..."
             az deployment group create \
               --resource-group $(resourceGroupName) \
