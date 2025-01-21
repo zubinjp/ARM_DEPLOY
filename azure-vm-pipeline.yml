@@ -12,6 +12,8 @@ variables:
     value: 'mySubnet'  # Example subnet name
   - name: vnetName
     value: 'myVnet'  # Example virtual network name
+  - name: resourceGroupName
+    value: 'Vm-Dep-Gp'  # Resource group name, adjust as needed
 
 jobs:
   - job: DeployARMTemplate
@@ -27,7 +29,7 @@ jobs:
             az account set --subscription $(subscriptionId)
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group Vm-Dep-Gp \
+              --resource-group $(resourceGroupName) \
               --template-file arm-temp.json \
               --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword) \
               --parameters roleAssignmentPrincipalId=$(roleAssignmentPrincipalId) \
@@ -46,5 +48,5 @@ jobs:
             az role assignment create \
               --assignee $(roleAssignmentPrincipalId) \
               --role $(roleDefinitionId) \
-              --scope "/subscriptions/$(subscriptionId)/resourceGroups/Vm-Dep-Gp/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
+              --scope "/subscriptions/$(subscriptionId)/resourceGroups/$(resourceGroupName)/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
         displayName: 'Assign RBAC Role to VMSS'
