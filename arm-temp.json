@@ -159,7 +159,7 @@
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
       ],
-      "scope": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/Vm-Dep-Gp/providers/Microsoft.Compute/virtualMachineScaleSets/[parameters('vmssName')]"
+      "scope": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/Vm-Dep-Gp"
     }
   ],
   "outputs": {
