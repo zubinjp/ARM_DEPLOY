@@ -1,15 +1,15 @@
 trigger:
   branches:
     include:
-      - main
+      - main  # Trigger pipeline on changes to the 'main' branch
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - group: Group1
+  - group: Group1  # Reference the variable group containing predefined variables
   - name: resourceGroupName
-    value: 'Vm-Dep-Gp'
+    value: 'Vm-Dep-Gp'  # Directly defining the resourceGroupName here
   - name: subnetName
     value: 'mySubnet'
   - name: vnetName
@@ -19,13 +19,17 @@ jobs:
   - job: DeployARMTemplate
     displayName: 'Deploy ARM Template to Azure'
     steps:
+      # Step 1: Print Debug Information
       - script: |
-          echo "DEBUG: Subscription ID: $(subscriptionId)"
-          echo "DEBUG: Resource Group Name: $(resourceGroupName)"
-          echo "DEBUG: Subnet Name: $(subnetName)"
-          echo "DEBUG: VNet Name: $(vnetName)"
+          echo "DEBUG: resourceGroupName: $(resourceGroupName)"
+          echo "DEBUG: subscriptionId: $(subscriptionId)"
+          echo "DEBUG: vmUsername: $(vmUsername)"
+          echo "DEBUG: vmssName: $(vmssName)"
+          echo "DEBUG: subnetName: $(subnetName)"
+          echo "DEBUG: vnetName: $(vnetName)"
         displayName: 'Print Debug Information'
 
+      # Step 2: Deploy ARM Template
       - task: AzureCLI@2
         inputs:
           azureSubscription: 'VMSS-connection'
