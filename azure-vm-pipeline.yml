@@ -43,25 +43,27 @@ jobs:
             az deployment group validate \
               --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
-              --parameters adminUsername="$(vmUsername)" \
-                          adminPassword="$(vmPassword)" \
-                          roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
-                          roleDefinitionId="$(roleDefinitionId)" \
-                          subscriptionId="$(subscriptionId)" \
-                          subnetName="$(subnetName)" \
-                          vnetName="$(vnetName)" \
-                          vmssName="$(vmssName)" || exit 1
+              --parameters \
+              adminUsername="$(vmUsername)" \
+              adminPassword="$(vmPassword)" \
+              roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
+              roleDefinitionId="$(roleDefinitionId)" \
+              subscriptionId="$(subscriptionId)" \
+              subnetName="$(subnetName)" \
+              vnetName="$(vnetName)" \
+              vmssName="$(vmssName)" || exit 1
 
             echo "Deploying ARM Template..."
             az deployment group create \
               --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
-              --parameters adminUsername="$(vmUsername)" \
-                          adminPassword="$(vmPassword)" \
-                          roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
-                          roleDefinitionId="$(roleDefinitionId)" \
-                          subscriptionId="$(subscriptionId)" \
-                          subnetName="$(subnetName)" \
-                          vnetName="$(vnetName)" \
-                          vmssName="$(vmssName)" || exit 1
+              --parameters \
+              adminUsername="$(vmUsername)" \
+              adminPassword="$(vmPassword)" \
+              roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
+              roleDefinitionId="$(roleDefinitionId)" \
+              subscriptionId="$(subscriptionId)" \
+              subnetName="$(subnetName)" \
+              vnetName="$(vnetName)" \
+              vmssName="$(vmssName)" || exit 1
         displayName: 'Deploy ARM Template'
