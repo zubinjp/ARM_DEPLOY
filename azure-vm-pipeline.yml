@@ -27,19 +27,33 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
-            az account set --subscription $(subscriptionId)
+            az account set --subscription "$(subscriptionId)"
+            
+            echo "Validating ARM Template..."
+            az deployment group validate \
+              --resource-group "$(resourceGroupName)" \
+              --template-file arm-temp.json \
+              --parameters adminUsername="$(vmUsername)" \
+                          adminPassword="$(vmPassword)" \
+                          roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
+                          roleDefinitionId="$(roleDefinitionId)" \
+                          subscriptionId="$(subscriptionId)" \
+                          subnetName="$(subnetName)" \
+                          vnetName="$(vnetName)" \
+                          vmssName="$(vmssName)"
+            
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group $(resourceGroupName) \
+              --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
-              --parameters adminUsername=$(vmUsername) \
-                          adminPassword=$(vmPassword) \
-                          roleAssignmentPrincipalId=$(roleAssignmentPrincipalId) \
-                          roleDefinitionId=$(roleDefinitionId) \
-                          subscriptionId=$(subscriptionId) \
-                          subnetName=$(subnetName) \
-                          vnetName=$(vnetName) \
-                          vmssName=$(vmssName)
+              --parameters adminUsername="$(vmUsername)" \
+                          adminPassword="$(vmPassword)" \
+                          roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
+                          roleDefinitionId="$(roleDefinitionId)" \
+                          subscriptionId="$(subscriptionId)" \
+                          subnetName="$(subnetName)" \
+                          vnetName="$(vnetName)" \
+                          vmssName="$(vmssName)"
         displayName: 'Deploy ARM Template'
 
       # Step 2: Assign RBAC Role to VMSS
@@ -51,7 +65,7 @@ jobs:
           inlineScript: |
             echo "Assigning RBAC role to VMSS..."
             az role assignment create \
-              --assignee $(roleAssignmentPrincipalId) \
-              --role $(roleDefinitionId) \
+              --assignee "$(roleAssignmentPrincipalId)" \
+              --role "$(roleDefinitionId)" \
               --scope "/subscriptions/$(subscriptionId)/resourceGroups/$(resourceGroupName)/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
         displayName: 'Assign RBAC Role to VMSS'
