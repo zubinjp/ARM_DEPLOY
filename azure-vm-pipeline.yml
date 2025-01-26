@@ -19,7 +19,15 @@ jobs:
   - job: DeployARMTemplate
     displayName: 'Deploy ARM Template to Azure'
     steps:
-      # Step 1: Deploy ARM Template
+      # Step 1: Print Debug Information
+      - script: |
+          echo "DEBUG: Subscription ID: $(subscriptionId)"
+          echo "DEBUG: Resource Group Name: $(resourceGroupName)"
+          echo "DEBUG: Subnet Name: $(subnetName)"
+          echo "DEBUG: VNet Name: $(vnetName)"
+        displayName: 'Print Debug Information'
+
+      # Step 2: Deploy ARM Template
       - task: AzureCLI@2
         inputs:
           azureSubscription: 'VMSS-connection'  # Azure service connection
@@ -27,36 +35,36 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
-            az account set --subscription "${{ variables.subscriptionId }}"
+            az account set --subscription "$(subscriptionId)" || exit 1
             
             echo "Validating ARM Template..."
             az deployment group validate \
-              --resource-group "${{ variables.resourceGroupName }}" \
+              --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
-              --parameters adminUsername="${{ variables.vmUsername }}" \
-                          adminPassword="${{ variables.vmPassword }}" \
-                          roleAssignmentPrincipalId="${{ variables.roleAssignmentPrincipalId }}" \
-                          roleDefinitionId="${{ variables.roleDefinitionId }}" \
-                          subscriptionId="${{ variables.subscriptionId }}" \
-                          subnetName="${{ variables.subnetName }}" \
-                          vnetName="${{ variables.vnetName }}" \
-                          vmssName="${{ variables.vmssName }}"
+              --parameters adminUsername="$(vmUsername)" \
+                          adminPassword="$(vmPassword)" \
+                          roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
+                          roleDefinitionId="$(roleDefinitionId)" \
+                          subscriptionId="$(subscriptionId)" \
+                          subnetName="$(subnetName)" \
+                          vnetName="$(vnetName)" \
+                          vmssName="$(vmssName)" || exit 1
             
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group "${{ variables.resourceGroupName }}" \
+              --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
-              --parameters adminUsername="${{ variables.vmUsername }}" \
-                          adminPassword="${{ variables.vmPassword }}" \
-                          roleAssignmentPrincipalId="${{ variables.roleAssignmentPrincipalId }}" \
-                          roleDefinitionId="${{ variables.roleDefinitionId }}" \
-                          subscriptionId="${{ variables.subscriptionId }}" \
-                          subnetName="${{ variables.subnetName }}" \
-                          vnetName="${{ variables.vnetName }}" \
-                          vmssName="${{ variables.vmssName }}"
+              --parameters adminUsername="$(vmUsername)" \
+                          adminPassword="$(vmPassword)" \
+                          roleAssignmentPrincipalId="$(roleAssignmentPrincipalId)" \
+                          roleDefinitionId="$(roleDefinitionId)" \
+                          subscriptionId="$(subscriptionId)" \
+                          subnetName="$(subnetName)" \
+                          vnetName="$(vnetName)" \
+                          vmssName="$(vmssName)" || exit 1
         displayName: 'Deploy ARM Template'
 
-      # Step 2: Assign RBAC Role to VMSS
+      # Step 3: Assign RBAC Role to VMSS
       - task: AzureCLI@2
         inputs:
           azureSubscription: 'VMSS-connection'
@@ -65,7 +73,7 @@ jobs:
           inlineScript: |
             echo "Assigning RBAC role to VMSS..."
             az role assignment create \
-              --assignee "${{ variables.roleAssignmentPrincipalId }}" \
-              --role "${{ variables.roleDefinitionId }}" \
-              --scope "/subscriptions/${{ variables.subscriptionId }}/resourceGroups/${{ variables.resourceGroupName }}/providers/Microsoft.Compute/virtualMachineScaleSets/${{ variables.vmssName }}"
+              --assignee "$(roleAssignmentPrincipalId)" \
+              --role "$(roleDefinitionId)" \
+              --scope "/subscriptions/$(subscriptionId)/resourceGroups/$(resourceGroupName)/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)" || exit 1
         displayName: 'Assign RBAC Role to VMSS'
