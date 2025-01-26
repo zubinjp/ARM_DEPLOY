@@ -1,27 +1,29 @@
 trigger:
   branches:
     include:
-      - main  # Trigger the pipeline on changes to the 'main' branch
+      - main
 
 pool:
-  vmImage: 'ubuntu-latest'  # Latest Ubuntu VM image
+  vmImage: 'ubuntu-latest'
 
 variables:
-  - group: Group1  # Reference to variable group 'Group1'
+  - group: Group1
   - name: resourceGroupName
-    value: 'Vm-Dep-Gp'  # Resource group name
+    value: 'Vm-Dep-Gp'
   - name: subnetName
-    value: 'mySubnet'  # Example subnet name
+    value: 'mySubnet'
   - name: vnetName
-    value: 'myVnet'  # Example virtual network name
+    value: 'myVnet'
   - name: subscriptionId
-    value: '8b3f97cc-9d4d-465e-b90a-22e1c47a2057'  # Substitute with actual subscription ID if different
+    value: '8b3f97cc-9d4d-465e-b90a-22e1c47a2057'
   - name: vmUsername
-    value: 'your-username'  # Substitute with actual VM username
-  - name: vmPassword
-    value: 'your-password'  # Substitute with actual VM password
+    value: 'your-username'
   - name: roleAssignmentPrincipalId
-    value: 'your-principal-id'  # Substitute with actual principal ID
+    value: 'your-principal-id'
+  - name: roleDefinitionId
+    value: 'Contributor'
+  - name: vmssName
+    value: 'myVMSS'
 
 jobs:
   - job: DeployARMTemplate
@@ -29,34 +31,34 @@ jobs:
     steps:
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'  
+          azureSubscription: 'VMSS-connection'
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Setting subscription context..."
-            az account set --subscription $subscriptionId
+            az account set --subscription $(subscriptionId)
             echo "Deploying ARM Template..."
             az deployment group create \
-              --resource-group $resourceGroupName \
+              --resource-group $(resourceGroupName) \
               --template-file arm-temp.json \
-              --parameters adminUsername=$vmUsername adminPassword=$vmPassword \
-              --parameters roleAssignmentPrincipalId=$roleAssignmentPrincipalId \
-              --parameters roleDefinitionId=$roleDefinitionId \
-              --parameters subscriptionId=$subscriptionId \
-              --parameters subnetName=$subnetName \
-              --parameters vnetName=$vnetName \
-              --parameters vmssName=$vmssName
+              --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword) \
+              --parameters roleAssignmentPrincipalId=$(roleAssignmentPrincipalId) \
+              --parameters roleDefinitionId=$(roleDefinitionId) \
+              --parameters subscriptionId=$(subscriptionId) \
+              --parameters subnetName=$(subnetName) \
+              --parameters vnetName=$(vnetName) \
+              --parameters vmssName=$(vmssName)
         displayName: 'Deploy ARM Template'
 
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'  
+          azureSubscription: 'VMSS-connection'
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Assigning RBAC role to VMSS..."
             az role assignment create \
-              --assignee $roleAssignmentPrincipalId \
-              --role $roleDefinitionId \
-              --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachineScaleSets/$vmssName"
+              --assignee $(roleAssignmentPrincipalId) \
+              --role $(roleDefinitionId) \
+              --scope "/subscriptions/$(subscriptionId)/resourceGroups/$(resourceGroupName)/providers/Microsoft.Compute/virtualMachineScaleSets/$(vmssName)"
         displayName: 'Assign RBAC Role to VMSS'
