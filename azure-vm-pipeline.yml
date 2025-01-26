@@ -1,37 +1,28 @@
 trigger:
   branches:
     include:
-      - main
+      - main  # Trigger pipeline on changes to the 'main' branch
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - group: Group1
+  - group: Group1  # Reference your variable group containing predefined variables
   - name: resourceGroupName
-    value: 'Vm-Dep-Gp'
+    value: 'Vm-Dep-Gp'  # Resource group name
   - name: subnetName
-    value: 'mySubnet'
+    value: 'mySubnet'  # Subnet name
   - name: vnetName
-    value: 'myVnet'
-  - name: subscriptionId
-    value: '8b3f97cc-9d4d-465e-b90a-22e1c47a2057'
-  - name: vmUsername
-    value: 'your-username'
-  - name: roleAssignmentPrincipalId
-    value: 'your-principal-id'
-  - name: roleDefinitionId
-    value: 'Contributor'
-  - name: vmssName
-    value: 'myVMSS'
+    value: 'myVnet'  # Virtual network name
 
 jobs:
   - job: DeployARMTemplate
     displayName: 'Deploy ARM Template to Azure'
     steps:
+      # Step 1: Deploy ARM Template
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'
+          azureSubscription: 'VMSS-connection'  # Azure service connection
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
@@ -41,15 +32,17 @@ jobs:
             az deployment group create \
               --resource-group $(resourceGroupName) \
               --template-file arm-temp.json \
-              --parameters adminUsername=$(vmUsername) adminPassword=$(vmPassword) \
-              --parameters roleAssignmentPrincipalId=$(roleAssignmentPrincipalId) \
-              --parameters roleDefinitionId=$(roleDefinitionId) \
-              --parameters subscriptionId=$(subscriptionId) \
-              --parameters subnetName=$(subnetName) \
-              --parameters vnetName=$(vnetName) \
-              --parameters vmssName=$(vmssName)
+              --parameters adminUsername=$(vmUsername) \
+                          adminPassword=$(vmPassword) \
+                          roleAssignmentPrincipalId=$(roleAssignmentPrincipalId) \
+                          roleDefinitionId=$(roleDefinitionId) \
+                          subscriptionId=$(subscriptionId) \
+                          subnetName=$(subnetName) \
+                          vnetName=$(vnetName) \
+                          vmssName=$(vmssName)
         displayName: 'Deploy ARM Template'
 
+      # Step 2: Assign RBAC Role to VMSS
       - task: AzureCLI@2
         inputs:
           azureSubscription: 'VMSS-connection'
