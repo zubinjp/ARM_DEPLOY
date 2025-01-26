@@ -29,7 +29,7 @@ jobs:
           echo "DEBUG: vnetName: $(vnetName)"
         displayName: 'Print Debug Information'
 
-      # Step 2: Deploy ARM Template
+      # Step 2: Validate and Deploy ARM Template
       - task: AzureCLI@2
         inputs:
           azureSubscription: 'VMSS-connection'
@@ -39,6 +39,7 @@ jobs:
             echo "Setting subscription context..."
             az account set --subscription "$(subscriptionId)" || exit 1
 
+            # Validate ARM Template
             echo "Validating ARM Template..."
             az deployment group validate \
               --resource-group "$(resourceGroupName)" \
@@ -51,8 +52,10 @@ jobs:
               subscriptionId="$(subscriptionId)" \
               subnetName="$(subnetName)" \
               vnetName="$(vnetName)" \
-              vmssName="$(vmssName)" || exit 1
+              vmssName="$(vmssName)" \
+              resourceGroupName="$(resourceGroupName)" || exit 1
 
+            # Deploy ARM Template
             echo "Deploying ARM Template..."
             az deployment group create \
               --resource-group "$(resourceGroupName)" \
@@ -65,5 +68,6 @@ jobs:
               subscriptionId="$(subscriptionId)" \
               subnetName="$(subnetName)" \
               vnetName="$(vnetName)" \
-              vmssName="$(vmssName)" || exit 1
+              vmssName="$(vmssName)" \
+              resourceGroupName="$(resourceGroupName)" || exit 1
         displayName: 'Deploy ARM Template'
