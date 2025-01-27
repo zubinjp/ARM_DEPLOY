@@ -8,8 +8,6 @@ pool:
 
 variables:
   - group: Group1  # Reference the variable group containing predefined variables
-  - name: resourceGroupName
-    value: 'Vm-Dep-Gp'  # Directly defining the resourceGroupName here
   - name: subnetName
     value: 'mySubnet'
   - name: vnetName
