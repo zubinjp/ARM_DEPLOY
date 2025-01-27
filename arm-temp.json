@@ -44,34 +44,69 @@
         "description": "The ID of the role definition to assign."
       }
     },
-    "subnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the subnet for the VMSS."
-      }
-    },
     "vnetName": {
       "type": "string",
+      "defaultValue": "myVnet",
       "metadata": {
-        "description": "The name of the virtual network for the VMSS."
+        "description": "The name of the virtual network."
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "mySubnet",
+      "metadata": {
+        "description": "The name of the subnet."
+      }
+    },
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "The address space of the virtual network."
+      }
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "The address space of the subnet."
       }
     }
   },
   "variables": {
-    "vnetId": "[subscriptionResourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+    "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
     "subnetId": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
     "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
   },
   "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-09-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-03-01",
       "location": "[resourceGroup().location]",
       "name": "[parameters('vmssName')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/', parameters('subnetName'))]",
-        "[concat('Microsoft.Authorization/roleAssignments/', guid(parameters('roleAssignmentPrincipalId'), parameters('resourceGroupName')))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ],
       "properties": {
         "overprovision": true,
@@ -117,7 +152,7 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(parameters('roleAssignmentPrincipalId'), parameters('resourceGroupName'))]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]"
+        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
       ],
       "properties": {
         "roleDefinitionId": "[parameters('roleDefinitionId')]",
@@ -128,21 +163,13 @@
     }
   ],
   "outputs": {
-    "resourceGroupName": {
+    "vnetId": {
       "type": "string",
-      "value": "[parameters('resourceGroupName')]"
-    },
-    "vmssName": {
-      "type": "string",
-      "value": "[parameters('vmssName')]"
+      "value": "[variables('vnetId')]"
     },
     "subnetId": {
       "type": "string",
       "value": "[variables('subnetId')]"
-    },
-    "vnetId": {
-      "type": "string",
-      "value": "[variables('vnetId')]"
     },
     "vmssId": {
       "type": "string",
