@@ -12,6 +12,8 @@ variables:
     value: 'mySubnet'
   - name: vnetName
     value: 'myVnet'
+  - name: system.debug
+    value: 'true'  # Enable debug logs
 
 jobs:
   - job: DeployARMTemplate
@@ -34,6 +36,7 @@ jobs:
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
+            echo "##vso[task.debug]Enabling debug logs..."
             echo "Setting subscription context..."
             az account set --subscription "$(subscriptionId)" || exit 1
 
