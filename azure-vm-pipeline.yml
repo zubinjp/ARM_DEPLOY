@@ -38,11 +38,11 @@ jobs:
           inlineScript: |
             echo "##vso[task.debug]Enabling debug logs..."
             echo "Setting subscription context..."
-            az account set --subscription "$(subscriptionId)" || exit 1
+            az account set --subscription "$(subscriptionId)" 
 
             # Validate ARM Template
             echo "Validating ARM Template..."
-            az deployment group validate \
+            validation_output=$(az deployment group validate \
               --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
               --parameters \
@@ -54,7 +54,14 @@ jobs:
               subnetName="$(subnetName)" \
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
-              resourceGroupName="$(resourceGroupName)" || exit 1
+              resourceGroupName="$(resourceGroupName)" 2>&1)
+
+            # Check validation output for errors
+            if [[ "$validation_output" =~ "Error:" ]]; then
+              echo "##[error] ARM Template validation failed."
+              echo "##[debug]$validation_output"
+              exit 1
+            fi
 
             # Deploy ARM Template
             echo "Deploying ARM Template..."
@@ -70,5 +77,5 @@ jobs:
               subnetName="$(subnetName)" \
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
-              resourceGroupName="$(resourceGroupName)" || exit 1
+              resourceGroupName="$(resourceGroupName)" 
         displayName: 'Deploy ARM Template'
