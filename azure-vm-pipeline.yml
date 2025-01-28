@@ -56,6 +56,9 @@ jobs:
               vmssName="$(vmssName)" \
               resourceGroupName="$(resourceGroupName)" 2>&1)
 
+            # Log the full validation output
+            echo "Validation Output: $validation_output"
+
             # Check validation output for errors
             if [[ "$validation_output" =~ "Error:" ]]; then
               echo "##[error] ARM Template validation failed."
@@ -63,7 +66,7 @@ jobs:
               exit 1
             fi
 
-            # Deploy ARM Template
+            # Step 3: Deploy ARM Template if Validation is Successful
             echo "Deploying ARM Template..."
             az deployment group create \
               --resource-group "$(resourceGroupName)" \
@@ -78,4 +81,10 @@ jobs:
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
               resourceGroupName="$(resourceGroupName)" 
-        displayName: 'Deploy ARM Template'
+        displayName: 'Validate and Deploy ARM Template'
+
+      # Step 4: Check if Resource Group Exists (Optional)
+      - script: |
+          echo "Checking if resource group exists..."
+          az group show --name "$(resourceGroupName)" || az group create --name "$(resourceGroupName)" --location $(location)
+        displayName: 'Check Resource Group Existence'
