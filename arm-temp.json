@@ -110,11 +110,11 @@
       ],
       "properties": {
         "overprovision": true,
-        "sku": { 
-          "name": "Standard_B1s", 
-          "tier": "Standard", 
-          "capacity": 1 
-        }, 
+        "sku": {
+          "name": "Standard_B1s",  // Correct SKU
+          "tier": "Standard",  // Ensure the tier is also provided
+          "capacity": 1  // Correct capacity for the scale set
+        },
         "virtualMachineProfile": {
           "osProfile": {
             "computerNamePrefix": "vmss",
