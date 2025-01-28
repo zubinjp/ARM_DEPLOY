@@ -102,7 +102,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
-      "apiVersion": "2022-04-01",
+      "apiVersion": "2022-03-01",  // Updated API Version
       "name": "[parameters('vmssName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
