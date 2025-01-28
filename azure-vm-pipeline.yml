@@ -54,15 +54,19 @@ jobs:
               subnetName="$(subnetName)" \
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
-              resourceGroupName="$(resourceGroupName)" 2>&1)
+              resourceGroupName="$(resourceGroupName)" \
+              --verbose 2>&1)  # Use --verbose for detailed output
 
             # Log the full validation output
             echo "Validation Output: $validation_output"
 
-            # Check validation output for errors
-            if [[ "$validation_output" =~ "error" ]]; then
-              echo "##[error] ARM Template validation failed."
-              echo "##[debug]$validation_output"
+            # Capture the exit code
+            validation_exit_code=$?
+
+            # If the exit code is not 0, it indicates an error occurred
+            if [ $validation_exit_code -ne 0 ]; then
+              echo "##[error] ARM Template validation failed with exit code $validation_exit_code."
+              echo "##[debug] Validation Output: $validation_output"
               exit 1
             fi
 
@@ -82,15 +86,19 @@ jobs:
               subnetName="$(subnetName)" \
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
-              resourceGroupName="$(resourceGroupName)" 2>&1)
+              resourceGroupName="$(resourceGroupName)" \
+              --verbose 2>&1)
 
             # Log the deployment output
             echo "Deployment Output: $deploy_output"
 
-            # Check deployment success or failure
-            if [[ "$deploy_output" =~ "error" ]]; then
-              echo "##[error] ARM Template deployment failed."
-              echo "##[debug]$deploy_output"
+            # Capture the exit code
+            deploy_exit_code=$?
+
+            # If the exit code is not 0, it indicates an error occurred
+            if [ $deploy_exit_code -ne 0 ]; then
+              echo "##[error] ARM Template deployment failed with exit code $deploy_exit_code."
+              echo "##[debug] Deployment Output: $deploy_output"
               exit 1
             fi
 
