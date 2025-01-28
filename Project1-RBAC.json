@@ -1,0 +1,17 @@
+{
+  "Name": "Project1-RBAC",
+  "IsCustom": true,
+  "Description": "Custom role for Project1",
+  "Actions": [
+    "Microsoft.Compute/*",
+    "Microsoft.Network/*",
+    "Microsoft.Storage/*"
+  ],
+  "NotActions": [
+    "Microsoft.Authorization/roleAssignments/*",
+    "Microsoft.Authorization/roleDefinitions/*"
+  ],
+  "AssignableScopes": [
+    "/subscriptions/8b3f97cc-9d4d-465e-b90a-22e1c47a2057"
+  ]
+}

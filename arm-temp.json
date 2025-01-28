@@ -103,13 +103,18 @@
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2022-03-01",
-      "location": "[resourceGroup().location]",
       "name": "[parameters('vmssName')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ],
       "properties": {
         "overprovision": true,
+        "sku": { 
+          "name": "Standard_B1s", 
+          "tier": "Standard", 
+          "capacity": 1 
+        }, 
         "virtualMachineProfile": {
           "osProfile": {
             "computerNamePrefix": "vmss",
