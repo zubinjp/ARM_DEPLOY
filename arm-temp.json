@@ -102,7 +102,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
-      "apiVersion": "2021-03-01",
+      "apiVersion": "2022-04-01",
       "name": "[parameters('vmssName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -111,9 +111,9 @@
       "properties": {
         "overprovision": true,
         "sku": {
-          "name": "Standard_B1s",  // Correct SKU
-          "tier": "Standard",  // Ensure the tier is also provided
-          "capacity": 1  // Correct capacity for the scale set
+          "name": "Standard_B1s",
+          "tier": "Standard",
+          "capacity": 1
         },
         "virtualMachineProfile": {
           "osProfile": {
