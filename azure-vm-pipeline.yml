@@ -32,7 +32,7 @@ jobs:
       # Step 2: Validate ARM Template
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'VMSS-connection'
+          azureSubscription: 'VMSS-connection'  # Azure DevOps Service connection
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
@@ -60,7 +60,7 @@ jobs:
             echo "Validation Output: $validation_output"
 
             # Check validation output for errors
-            if [[ "$validation_output" =~ "Error:" ]]; then
+            if echo "$validation_output" | grep -q "error"; then
               echo "##[error] ARM Template validation failed."
               echo "##[debug]$validation_output"
               exit 1
@@ -70,7 +70,7 @@ jobs:
 
             # Deploy ARM Template
             echo "Deploying ARM Template..."
-            az deployment group create \
+            deploy_output=$(az deployment group create \
               --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
               --parameters \
@@ -82,5 +82,17 @@ jobs:
               subnetName="$(subnetName)" \
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
-              resourceGroupName="$(resourceGroupName)"
+              resourceGroupName="$(resourceGroupName)" 2>&1)
+
+            # Log the deployment output
+            echo "Deployment Output: $deploy_output"
+
+            # Check deployment success or failure
+            if echo "$deploy_output" | grep -q "error"; then
+              echo "##[error] ARM Template deployment failed."
+              echo "##[debug]$deploy_output"
+              exit 1
+            fi
+
+            echo "ARM Template deployed successfully!"
         displayName: 'Deploy ARM Template'
