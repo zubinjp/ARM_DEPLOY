@@ -60,7 +60,7 @@ jobs:
             echo "Validation Output: $validation_output"
 
             # Check validation output for errors
-            if echo "$validation_output" | grep -q "error"; then
+            if [[ "$validation_output" =~ "error" ]]; then
               echo "##[error] ARM Template validation failed."
               echo "##[debug]$validation_output"
               exit 1
@@ -88,7 +88,7 @@ jobs:
             echo "Deployment Output: $deploy_output"
 
             # Check deployment success or failure
-            if echo "$deploy_output" | grep -q "error"; then
+            if [[ "$deploy_output" =~ "error" ]]; then
               echo "##[error] ARM Template deployment failed."
               echo "##[debug]$deploy_output"
               exit 1
