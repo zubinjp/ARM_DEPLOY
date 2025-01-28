@@ -29,7 +29,7 @@ jobs:
           echo "DEBUG: vnetName: $(vnetName)"
         displayName: 'Print Debug Information'
 
-      # Step 2: Validate and Deploy ARM Template
+      # Step 2: Validate ARM Template
       - task: AzureCLI@2
         inputs:
           azureSubscription: 'VMSS-connection'
@@ -38,7 +38,7 @@ jobs:
           inlineScript: |
             echo "##vso[task.debug]Enabling debug logs..."
             echo "Setting subscription context..."
-            az account set --subscription "$(subscriptionId)" 
+            az account set --subscription "$(subscriptionId)"
 
             # Validate ARM Template
             echo "Validating ARM Template..."
@@ -66,7 +66,9 @@ jobs:
               exit 1
             fi
 
-            # Step 3: Deploy ARM Template if Validation is Successful
+            echo "ARM Template validation successful. Proceeding with deployment."
+
+            # Deploy ARM Template
             echo "Deploying ARM Template..."
             az deployment group create \
               --resource-group "$(resourceGroupName)" \
@@ -80,11 +82,5 @@ jobs:
               subnetName="$(subnetName)" \
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
-              resourceGroupName="$(resourceGroupName)" 
-        displayName: 'Validate and Deploy ARM Template'
-
-      # Step 4: Check if Resource Group Exists (Optional)
-      - script: |
-          echo "Checking if resource group exists..."
-          az group show --name "$(resourceGroupName)" || az group create --name "$(resourceGroupName)" --location $(location)
-        displayName: 'Check Resource Group Existence'
+              resourceGroupName="$(resourceGroupName)"
+        displayName: 'Deploy ARM Template'
