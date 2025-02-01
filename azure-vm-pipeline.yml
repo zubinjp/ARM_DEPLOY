@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - main  # Trigger pipeline on changes to the 'main' branch
+      - main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -19,30 +19,21 @@ jobs:
   - job: DeployARMTemplate
     displayName: 'Deploy ARM Template to Azure'
     steps:
-      # Step 1: Print Debug Information
-      - script: |
-          echo "DEBUG: resourceGroupName: $(resourceGroupName)"
-          echo "DEBUG: subscriptionId: $(subscriptionId)"
-          echo "DEBUG: vmUsername: $(vmUsername)"
-          echo "DEBUG: vmssName: $(vmssName)"
-          echo "DEBUG: subnetName: $(subnetName)"
-          echo "DEBUG: vnetName: $(vnetName)"
-        displayName: 'Print Debug Information'
-
-      # Step 2: Validate and Deploy ARM Template
       - task: AzureCLI@2
         inputs:
           azureSubscription: 'VMSS-connection'  # Azure DevOps Service connection
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
+            set -e # Exit on any command failure
+
             echo "##vso[task.debug]Enabling debug logs..."
             echo "Setting subscription context..."
             az account set --subscription "$(subscriptionId)"
 
             # Validate ARM Template
             echo "Validating ARM Template..."
-            validation_output=$(az deployment group validate \
+            az deployment group validate \
               --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
               --parameters \
@@ -55,22 +46,11 @@ jobs:
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
               resourceGroupName="$(resourceGroupName)" \
-              --verbose 2>&1)
-
-            echo "Validation Output: $validation_output"
-
-            # Check validation output for errors
-            if [[ "$validation_output" =~ "Error:" ]]; then
-              echo "##[error] ARM Template validation failed."
-              echo "##[debug]$validation_output"
-              exit 1
-            fi
-
-            echo "ARM Template validation successful. Proceeding with deployment."
+              --verbose 
 
             # Deploy ARM Template
             echo "Deploying ARM Template..."
-            deploy_output=$(az deployment group create \
+            az deployment group create \
               --resource-group "$(resourceGroupName)" \
               --template-file arm-temp.json \
               --parameters \
@@ -83,16 +63,5 @@ jobs:
               vnetName="$(vnetName)" \
               vmssName="$(vmssName)" \
               resourceGroupName="$(resourceGroupName)" \
-              --verbose 2>&1)
-
-            echo "Deployment Output: $deploy_output"
-
-            # Check for deployment errors in the output
-            if [[ "$deploy_output" =~ "Error:" ]]; then
-              echo "##[error] ARM Template deployment failed."
-              echo "##[debug]$deploy_output"
-              exit 1
-            fi
-
-            echo "ARM Template deployed successfully!"
+              --verbose 
         displayName: 'Deploy ARM Template'
