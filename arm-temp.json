@@ -111,7 +111,7 @@
       "properties": {
         "overprovision": true,
         "sku": { 
-          "name": "Standard_B1s", 
+          "name": "Standard_B2s", 
           "tier": "Standard" 
         }, 
         "virtualMachineProfile": {
