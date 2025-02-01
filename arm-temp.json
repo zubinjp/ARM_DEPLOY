@@ -102,18 +102,19 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
-      "apiVersion": "2022-03-01",  // Updated API Version
+      "apiVersion": "2023-07-01",  // Updated to latest stable version
       "name": "[parameters('vmssName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ],
+      "sku": {
+        "name": "Standard_B1ms",  // Ensure this is available in your region
+        "tier": "Standard",
+        "capacity": 1
+      },
       "properties": {
         "overprovision": true,
-        "sku": { 
-          "name": "Standard_B1ms", 
-          "tier": "Standard" 
-        }, 
         "virtualMachineProfile": {
           "osProfile": {
             "computerNamePrefix": "vmss",
