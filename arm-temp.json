@@ -110,11 +110,10 @@
       ],
       "properties": {
         "overprovision": true,
-        "sku": {
-          "name": "Standard_B1s",
-          "tier": "Standard",
-          "capacity": 1
-        },
+        "sku": { 
+          "name": "Standard_B1s", 
+          "tier": "Standard" 
+        }, 
         "virtualMachineProfile": {
           "osProfile": {
             "computerNamePrefix": "vmss",
