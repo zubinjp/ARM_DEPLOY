@@ -101,84 +101,58 @@
       }
     },
     {
-      "type": "Microsoft.Compute/virtualMachineScaleSets",
-      "apiVersion": "2023-07-01",  // Updated to latest stable version
-      "name": "[parameters('vmssName')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
-      ],
-      "sku": {
-        "name": "Standard_B1ms",  // Ensure this is available in your region
-        "tier": "Standard",
-        "capacity": 1
-      },
-      "properties": {
-        "overprovision": true,
-        "virtualMachineProfile": {
-          "osProfile": {
-            "computerNamePrefix": "vmss",
-            "adminUsername": "[parameters('adminUsername')]",
-            "adminPassword": "[parameters('adminPassword')]"
+      {
+        "type": "Microsoft.Compute/virtualMachineScaleSets",
+        "apiVersion": "2023-07-01",
+        "name": "[parameters('vmssName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+        ],
+        "sku": {
+          "name": "Standard_B1ms",
+          "tier": "Standard",
+          "capacity": 1
+        },
+        "properties": {
+          "overprovision": true,
+          "upgradePolicy": {
+            "mode": "Manual" 
           },
-          "storageProfile": {
-            "imageReference": {
-              "publisher": "MicrosoftWindowsServer",
-              "offer": "WindowsServer",
-              "sku": "2019-Datacenter",
-              "version": "latest"
-            }
-          },
-          "networkProfile": {
-            "networkInterfaceConfigurations": [
-              {
-                "name": "nic",
-                "properties": {
-                  "primary": true,
-                  "ipConfigurations": [
-                    {
-                      "name": "ipconfig",
-                      "properties": {
-                        "subnet": {
-                          "id": "[variables('subnetId')]"
+          "virtualMachineProfile": {
+            "osProfile": {
+              "computerNamePrefix": "vmss",
+              "adminUsername": "[parameters('adminUsername')]",
+              "adminPassword": "[parameters('adminPassword')]"
+            },
+            "storageProfile": {
+              "imageReference": {
+                "publisher": "MicrosoftWindowsServer",
+                "offer": "WindowsServer",
+                "sku": "2019-Datacenter",
+                "version": "latest"
+              }
+            },
+            "networkProfile": {
+              "networkInterfaceConfigurations": [
+                {
+                  "name": "nic",
+                  "properties": {
+                    "primary": true,
+                    "ipConfigurations": [
+                      {
+                        "name": "ipconfig",
+                        "properties": {
+                          "subnet": {
+                            "id": "[variables('subnetId')]"
+                          }
                         }
                       }
-                    }
-                  ]
+                    ]
+                  }
                 }
-              }
-            ]
+              ]
+            }
           }
         }
       }
-    },
-    {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
-      "name": "[guid(parameters('roleAssignmentPrincipalId'), parameters('resourceGroupName'))]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
-      ],
-      "properties": {
-        "roleDefinitionId": "[parameters('roleDefinitionId')]",
-        "principalId": "[parameters('roleAssignmentPrincipalId')]",
-        "principalType": "ServicePrincipal"
-      },
-      "scope": "[variables('vmssId')]"
-    }
-  ],
-  "outputs": {
-    "vnetId": {
-      "type": "string",
-      "value": "[variables('vnetId')]"
-    },
-    "subnetId": {
-      "type": "string",
-      "value": "[variables('subnetId')]"
-    },
-    "vmssId": {
-      "type": "string",
-      "value": "[variables('vmssId')]"
-    }
-  }
-}
