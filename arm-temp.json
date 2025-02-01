@@ -101,58 +101,59 @@
       }
     },
     {
-      {
-        "type": "Microsoft.Compute/virtualMachineScaleSets",
-        "apiVersion": "2023-07-01",
-        "name": "[parameters('vmssName')]",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-          "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
-        ],
-        "sku": {
-          "name": "Standard_B1ms",
-          "tier": "Standard",
-          "capacity": 1
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2023-07-01",
+      "name": "[parameters('vmssName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+      ],
+      "sku": {
+        "name": "Standard_B1ms",
+        "tier": "Standard",
+        "capacity": 1
+      },
+      "properties": {
+        "overprovision": true,
+        "upgradePolicy": {
+          "mode": "Manual"
         },
-        "properties": {
-          "overprovision": true,
-          "upgradePolicy": {
-            "mode": "Manual" 
+        "virtualMachineProfile": {
+          "osProfile": {
+            "computerNamePrefix": "vmss",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
           },
-          "virtualMachineProfile": {
-            "osProfile": {
-              "computerNamePrefix": "vmss",
-              "adminUsername": "[parameters('adminUsername')]",
-              "adminPassword": "[parameters('adminPassword')]"
-            },
-            "storageProfile": {
-              "imageReference": {
-                "publisher": "MicrosoftWindowsServer",
-                "offer": "WindowsServer",
-                "sku": "2019-Datacenter",
-                "version": "latest"
-              }
-            },
-            "networkProfile": {
-              "networkInterfaceConfigurations": [
-                {
-                  "name": "nic",
-                  "properties": {
-                    "primary": true,
-                    "ipConfigurations": [
-                      {
-                        "name": "ipconfig",
-                        "properties": {
-                          "subnet": {
-                            "id": "[variables('subnetId')]"
-                          }
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "MicrosoftWindowsServer",
+              "offer": "WindowsServer",
+              "sku": "2019-Datacenter",
+              "version": "latest"
+            }
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "nic",
+                "properties": {
+                  "primary": true,
+                  "ipConfigurations": [
+                    {
+                      "name": "ipconfig",
+                      "properties": {
+                        "subnet": {
+                          "id": "[variables('subnetId')]"
                         }
                       }
-                    ]
-                  }
+                    }
+                  ]
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       }
+    }
+  ]
+}
